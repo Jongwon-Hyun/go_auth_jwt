@@ -1,28 +1,45 @@
 package auth
 
 import (
-	"github.com/golang-jwt/jwt"
+	"authentication"
+	"errors"
+	"fmt"
+	"github.com/golang-jwt/jwt/v4"
 	"time"
 )
 
-// TODO 환경변수 등록 후 사용 등 보안적으로 보완해야 함
-const secret string = "secret"
-
-func NewClaim(userID string) *jwt.StandardClaims {
+func NewClaim(userID string) jwt.MapClaims {
 	now := time.Now()
-	return &jwt.StandardClaims{
-		Subject:   userID,
-		IssuedAt:  now.Unix(),
-		ExpiresAt: now.Add(time.Hour * 24).Unix(),
+	claim := jwt.MapClaims{
+		"sub": userID,
+		"iat": now.Unix(),
+		"exp": now.Add(time.Hour * 24).Unix(),
 	}
+
+	return claim
 }
 
-func GenerateToken(claim *jwt.StandardClaims) (string, error) {
-	// TODO 구현할 것!
-	panic("not implemented")
+func GenerateToken(claim jwt.MapClaims, secret string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
+	return token.SignedString([]byte(secret))
 }
 
-func ValidateToken(token string) (string, error) {
-	// TODO 구현할 것!
-	panic("not implemented")
+func ValidateToken(token string, secret string) (jwt.MapClaims, error) {
+	parsedToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+		_, ok := t.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, fmt.Errorf(authentication.ErrInvalidToken)
+		}
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	mapClaims, ok := parsedToken.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, errors.New(authentication.ErrInvalidToken)
+	}
+
+	return mapClaims, nil
 }
