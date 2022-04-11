@@ -6,3 +6,6 @@ https://tinkerbellbass.tistory.com/57
 
 2. 토큰 구현 및 테스트 코드 작성  
 https://tinkerbellbass.tistory.com/58
+  
+3. 인증 미들웨어 구현 및 테스트 코드 작성  
+https://tinkerbellbass.tistory.com/59
