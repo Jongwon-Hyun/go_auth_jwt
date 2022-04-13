@@ -8,11 +8,15 @@ import (
 	"strings"
 )
 
-type Authentication struct {
+type authenticationMiddleware struct {
 	secret string
 }
 
-func (a *Authentication) AuthenticateMiddleware(next http.Handler) http.Handler {
+func NewAuthentication(secret string) *authenticationMiddleware {
+	return &authenticationMiddleware{secret: secret}
+}
+
+func (a *authenticationMiddleware) StripTokenMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := getTokenFromRequest(r)
 		if err != nil {

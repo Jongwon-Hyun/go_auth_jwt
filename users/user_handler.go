@@ -8,8 +8,8 @@ type UserHandler struct {
 	userService UserServiceIF
 }
 
-func NewUserHandler(auth UserServiceIF) *UserHandler {
-	return &UserHandler{userService: auth}
+func NewUserHandler(userService UserServiceIF) *UserHandler {
+	return &UserHandler{userService: userService}
 }
 
 func (u *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
