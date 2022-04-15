@@ -24,13 +24,13 @@ func (a *authenticationMiddleware) StripTokenMiddleware(next http.Handler) http.
 			return
 		}
 
-		userID, err := ValidateToken(token, a.secret)
+		claim, err := ValidateToken(token, a.secret)
 		if err != nil {
 			http.Error(w, err.Error(), authentication.ErrStatusCode(err))
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "user_id", userID)
+		ctx := context.WithValue(r.Context(), "user_id", claim["sub"])
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

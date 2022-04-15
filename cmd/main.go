@@ -9,26 +9,27 @@ import (
 )
 
 func main() {
-
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	// TODO 환경변수에서 값을 가져오는 등의 보안적 조치를 취할 것 !
+	// TODO 환경변수에서 값을 얻어오는 등의 보안적인 조치를 취할 것
 	secret := "secret"
-	autenticationMiddelware := auth.NewAuthentication(secret)
+	authentication := auth.NewAuthentication(secret)
+	userRepository := users.NewUserRepository()
+	userService := users.NewUserService(userRepository, secret)
+	userHandler := users.NewUserHandler(userService)
 
-	// TODO 의존성 주입 엮은 UserHandler 사용하도록 변경할 것!
 	r.Route("/users", func(r chi.Router) {
 		// 등록
-		r.Post("/", users.UserHandler{}.SignUp)
+		r.Post("/", userHandler.SignUp)
 
 		// 등록한 유저 대상으로 토큰 발급
-		r.Post("/token", users.UserHandler{}.SignIn)
+		r.Post("/token", userHandler.SignIn)
 
 		// 토큰 인증 테스트
 		r.Route("/who_am_i", func(r chi.Router) {
-			r.Use(autenticationMiddelware.StripTokenMiddleware)
-			r.Get("/", users.UserHandler{}.GetSelfUser)
+			r.Use(authentication.StripTokenMiddleware)
+			r.Get("/", userHandler.GetSelfUser)
 		})
 	})
 

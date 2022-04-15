@@ -52,7 +52,7 @@ func (u *userService) SignIn(userDto UserDto) (string, error) {
 		return "", errors.New(authentication.ErrInvalidPassword)
 	}
 
-	token, err := auth.GenerateToken(auth.NewClaim(user.UserID), "secret")
+	token, err := auth.GenerateToken(auth.NewClaim(user.UserID), u.secret)
 	if err != nil {
 		return "", errors.New(authentication.ErrTokenGenerationFailed)
 	}
